@@ -113,7 +113,7 @@ fn print_matches(words : Vec<String>) {
     if words.is_empty() {
         println!("\t<No Results>");
     } else {
-        let mut sorted_words : Vec<String> = words.iter().cloned().collect();
+        let mut sorted_words : Vec<String> = words.into_iter().collect();
         sorted_words.sort();
         for word in sorted_words {
             println!("\t{}", word);
