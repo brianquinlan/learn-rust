@@ -11,12 +11,12 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use regex::Regex;
 
-fn load_dictionary() -> (HashMap<(char, usize, usize), HashSet<String>>,
-                         HashMap<usize, HashSet<String>>) {
-    let path = Path::new("/usr/share/dict/words");
-    let display = path.display();
+fn load_dictionary(dictionary_path: &Path) -> (
+        HashMap<(char, usize, usize), HashSet<String>>,
+        HashMap<usize, HashSet<String>>) {
+    let display = dictionary_path.display();
 
-    let file = match File::open(&path) {
+    let file = match File::open(dictionary_path) {
         Err(why) => panic!("couldn't open {}: {}",
                            display,
                            Error::description(&why)),
@@ -122,7 +122,9 @@ fn print_matches(words : Vec<String>) {
 }
 
 fn main() {
-    let (ch_position_length_map, length_map) = load_dictionary();
+    let dictionary_path = Path::new("/usr/share/dict/words");
+    let (ch_position_length_map, length_map) = load_dictionary(
+        &dictionary_path);
 
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
