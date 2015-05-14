@@ -11,9 +11,7 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use regex::Regex;
 
-fn load_dictionary(dictionary_path: &Path) -> (
-        HashMap<(char, usize, usize), HashSet<String>>,
-        HashMap<usize, HashSet<String>>) {
+fn load_dictionary(dictionary_path: &Path) -> Vec<String> {
     let display = dictionary_path.display();
 
     let file = match File::open(dictionary_path) {
@@ -22,10 +20,8 @@ fn load_dictionary(dictionary_path: &Path) -> (
                            Error::description(&why)),
         Ok(file) => file,
     };
-
-    let mut ch_position_length_map = HashMap::new();
-    let mut length_map = HashMap::new();
     let reader = BufReader::new(file);
+    let mut words = Vec::new();
 
     for readline in reader.lines() {
         let line = match readline {
@@ -35,22 +31,34 @@ fn load_dictionary(dictionary_path: &Path) -> (
             Ok(readline) => readline,
         };
 
-        let word = line.trim();
+        words.push(line.trim().to_string());
+    }
+    return words;
+}
+
+fn build_maps(words: &Vec<String>) -> (
+        HashMap<(char, usize, usize), HashSet<&str>>,
+        HashMap<usize, HashSet<&str>>) {
+    let mut ch_position_length_map :
+        HashMap<(char, usize, usize), HashSet<&str>> = HashMap::new();
+    let mut length_map : HashMap<usize, HashSet<&str>> = HashMap::new();
+
+    for word in words.iter() {
         for (index, ch) in word.to_ascii_lowercase().chars().enumerate() {
             let key = (ch, index, word.len());
 
             ch_position_length_map.entry(key).or_insert(
-                HashSet::new()).insert(word.to_string());
+                HashSet::new()).insert(word);
             length_map.entry(word.len()).or_insert(
-                HashSet::new()).insert(word.to_string());
+                HashSet::new()).insert(word);
         }
     }
     (ch_position_length_map, length_map)
 }
 
-fn match_pattern(pattern : &str,
-         ch_position_length_map : &HashMap<(char, usize, usize), HashSet<String>>,
-         length_map : &HashMap<usize, HashSet<String>>) -> Vec<String> {
+fn match_pattern<'a>(pattern : &str,
+         ch_position_length_map : &HashMap<(char, usize, usize), HashSet<&'a str>>,
+         length_map : &HashMap<usize, HashSet<&'a str>>) -> Vec<&'a str> {
     let pattern_parser = Regex::new(
         r"(?P<number>\d+)|(?P<letter>[A-Za-z])").unwrap();
 
@@ -80,7 +88,7 @@ fn match_pattern(pattern : &str,
         }
     }
 
-    let mut word_sets = Vec::new();
+    let mut word_sets : Vec<&HashSet<&str>> = Vec::new();
     for &(ch, index) in ch_and_index.iter() {
         let key = (ch, index as usize, pattern_length as usize);
         if ch_position_length_map.contains_key(&key) {
@@ -97,7 +105,7 @@ fn match_pattern(pattern : &str,
     }
 
     word_sets.sort_by(|a, b| a.len().cmp(&b.len()));
-    let mut refined_word_set : HashSet<String> =
+    let mut refined_word_set : HashSet<&str> =
         word_sets.get(0).unwrap().intersection(
             word_sets.get(1).unwrap()).cloned().collect();
 
@@ -109,11 +117,11 @@ fn match_pattern(pattern : &str,
     return refined_word_set.iter().cloned().collect();
 }
 
-fn print_matches(words : Vec<String>) {
+fn print_matches(words : Vec<&str>) {
     if words.is_empty() {
         println!("\t<No Results>");
     } else {
-        let mut sorted_words : Vec<String> = words.into_iter().collect();
+        let mut sorted_words : Vec<&str> = words.into_iter().collect();
         sorted_words.sort();
         for word in sorted_words {
             println!("\t{}", word);
@@ -123,8 +131,8 @@ fn print_matches(words : Vec<String>) {
 
 fn main() {
     let dictionary_path = Path::new("/usr/share/dict/words");
-    let (ch_position_length_map, length_map) = load_dictionary(
-        &dictionary_path);
+    let words = load_dictionary(&dictionary_path);
+    let (ch_position_length_map, length_map) = build_maps(&words);
 
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
