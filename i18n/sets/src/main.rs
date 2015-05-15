@@ -129,6 +129,99 @@ fn print_matches(words : Vec<&str>) {
     }
 }
 
+#[test]
+fn match_number_only() {
+    let words = vec![
+            "cat".to_string(),
+            "intercrystallization".to_string(),
+            "parallelogrammatical".to_string(),
+            "pseudoanthropological".to_string()];
+    let (ch_position_length_map, length_map) = build_maps(&words);
+    let mut matches = match_pattern("20",
+                                    &ch_position_length_map,
+                                    &length_map);
+    matches.sort();
+    assert_eq!(matches, ["intercrystallization", "parallelogrammatical"]);
+}
+
+#[test]
+fn match_letters_only() {
+    let words = vec![
+            "cat".to_string(),
+            "intercrystallization".to_string(),
+            "parallelogrammatical".to_string(),
+            "pseudoanthropological".to_string()];
+    let (ch_position_length_map, length_map) = build_maps(&words);
+    let mut matches = match_pattern("parallelogrammatical",
+                                    &ch_position_length_map,
+                                    &length_map);
+    matches.sort();
+    assert_eq!(matches, ["parallelogrammatical"]);
+}
+
+#[test]
+fn match_letter_number_letter() {
+    let words = vec![
+            "i18n".to_string(),
+            "in".to_string(),
+            "intercrystallization".to_string(),
+            "internationalization".to_string(),
+            "internationalizationy".to_string()];
+    let (ch_position_length_map, length_map) = build_maps(&words);
+    let mut matches = match_pattern("i18n",
+                                    &ch_position_length_map,
+                                    &length_map);
+    matches.sort();
+    assert_eq!(matches, ["intercrystallization", "internationalization"]);
+}
+
+#[test]
+fn match_letter_number_letter_number_letter() {
+    let words = vec![
+            "institutionalization".to_string(),
+            "intercrystallization".to_string(),
+            "internationalization".to_string(),
+            "internationalizationy".to_string()];
+    let (ch_position_length_map, length_map) = build_maps(&words);
+    let mut matches = match_pattern("i1t16n",
+                                    &ch_position_length_map,
+                                    &length_map);
+    matches.sort();
+    assert_eq!(matches, ["intercrystallization", "internationalization"]);
+}
+
+#[test]
+fn match_number_letter_number_letter_number() {
+    let words = vec![
+            "antianthropomorphism".to_string(),
+            "institutionalization".to_string(),
+            "intercrystallization".to_string(),
+            "internationalization".to_string(),
+            "internationalizationy".to_string()];
+    let (ch_position_length_map, length_map) = build_maps(&words);
+    let mut matches = match_pattern("2t2n14",
+                                    &ch_position_length_map,
+                                    &length_map);
+    matches.sort();
+    assert_eq!(matches, ["antianthropomorphism", "internationalization"]);
+}
+
+#[test]
+fn match_ignores_case() {
+    let words = vec![
+            "Cat".to_string(),
+            "cat".to_string(),
+            "cot".to_string(),
+            "dog".to_string()];
+    let (ch_position_length_map, length_map) = build_maps(&words);
+    let mut matches = match_pattern("c1t",
+                                    &ch_position_length_map,
+                                    &length_map);
+    matches.sort();
+    assert_eq!(matches, ["Cat", "cat", "cot"]);
+}
+
+#[allow(dead_code)]
 fn main() {
     let dictionary_path = Path::new("/usr/share/dict/words");
     let words = load_dictionary(&dictionary_path);
