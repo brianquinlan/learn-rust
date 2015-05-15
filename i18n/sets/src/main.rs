@@ -38,10 +38,10 @@ fn load_dictionary(dictionary_path: &Path) -> Vec<String> {
 
 fn build_maps(words: &Vec<String>) -> (
         HashMap<(char, usize, usize), HashSet<&str>>,
-        HashMap<usize, HashSet<&str>>) {
+        HashMap<usize, Vec<&str>>) {
     let mut ch_position_length_map :
         HashMap<(char, usize, usize), HashSet<&str>> = HashMap::new();
-    let mut length_map : HashMap<usize, HashSet<&str>> = HashMap::new();
+    let mut length_map : HashMap<usize, Vec<&str>> = HashMap::new();
 
     for word in words.iter() {
         for (index, ch) in word.to_ascii_lowercase().chars().enumerate() {
@@ -49,16 +49,16 @@ fn build_maps(words: &Vec<String>) -> (
 
             ch_position_length_map.entry(key).or_insert(
                 HashSet::new()).insert(word);
-            length_map.entry(word.len()).or_insert(
-                HashSet::new()).insert(word);
         }
+        length_map.entry(word.len()).or_insert(
+            Vec::new()).push(word);
     }
     (ch_position_length_map, length_map)
 }
 
 fn match_pattern<'a>(pattern : &str,
          ch_position_length_map : &HashMap<(char, usize, usize), HashSet<&'a str>>,
-         length_map : &HashMap<usize, HashSet<&'a str>>) -> Vec<&'a str> {
+         length_map : &HashMap<usize, Vec<&'a str>>) -> Vec<&'a str> {
     let pattern_parser = Regex::new(
         r"(?P<number>\d+)|(?P<letter>[A-Za-z])").unwrap();
 
@@ -80,22 +80,22 @@ fn match_pattern<'a>(pattern : &str,
     }
 
     if ch_and_index.is_empty() {
-        if length_map.contains_key(&pattern_length) {
-            return length_map.get(
-                &pattern_length).unwrap().iter().cloned().collect();
-        } else {
-            return Vec::new();
+        return match length_map.get(&pattern_length) {
+            // The division was valid
+            Some(word_list) => word_list.clone(),
+            // The division was invalid
+            None => Vec::new()
         }
     }
 
     let mut word_sets : Vec<&HashSet<&str>> = Vec::new();
     for &(ch, index) in ch_and_index.iter() {
         let key = (ch, index as usize, pattern_length as usize);
-        if ch_position_length_map.contains_key(&key) {
-            word_sets.push(ch_position_length_map.get(&key).unwrap());
-        } else {
+        match ch_position_length_map.get(&key) {
+            // The division was valid
+            Some(word_set) => word_sets.push(word_set),
             // There are no words of pattern_length that ch at index.
-            return Vec::new();
+            None => return Vec::new()
         }
     }
 
@@ -145,6 +145,19 @@ fn match_number_only() {
 }
 
 #[test]
+fn match_number_only_no_match() {
+    let words = vec![
+            "cat".to_string(),
+            "parallelogrammatical".to_string(),
+            "pseudoanthropological".to_string()];
+    let (ch_position_length_map, length_map) = build_maps(&words);
+    let matches = match_pattern("2",
+                                &ch_position_length_map,
+                                &length_map);
+    assert!(matches.is_empty());
+}
+
+#[test]
 fn match_letters_only() {
     let words = vec![
             "cat".to_string(),
@@ -157,6 +170,19 @@ fn match_letters_only() {
                                     &length_map);
     matches.sort();
     assert_eq!(matches, ["parallelogrammatical"]);
+}
+
+#[test]
+fn match_letters_only_no_match() {
+    let words = vec![
+            "cat".to_string(),
+            "intercrystallization".to_string(),
+            "pseudoanthropological".to_string()];
+    let (ch_position_length_map, length_map) = build_maps(&words);
+    let matches = match_pattern("caterpillar",
+                                &ch_position_length_map,
+                                &length_map);
+    assert!(matches.is_empty());
 }
 
 #[test]
