@@ -1,0 +1,7 @@
+[package]
+name = "prefix"
+version = "0.1.0"
+authors = ["Brian Quinlan <brian@sweetapp.com>"]
+
+[dependencies]
+regex = "0.1.8"
