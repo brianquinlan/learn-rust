@@ -47,11 +47,11 @@ fn build_maps(words: &Vec<String>) -> (
         for (index, ch) in word.to_ascii_lowercase().chars().enumerate() {
             let key = (ch, index, word.len());
 
-            ch_position_length_map.entry(key).or_insert(
-                HashSet::new()).insert(word);
+            ch_position_length_map.entry(key).or_insert_with(
+                || HashSet::new()).insert(word);
         }
-        length_map.entry(word.len()).or_insert(
-            Vec::new()).push(word);
+        length_map.entry(word.len()).or_insert_with(
+            || Vec::new()).push(word);
     }
     (ch_position_length_map, length_map)
 }
