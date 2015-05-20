@@ -1,5 +1,9 @@
+extern crate getopts;
 extern crate regex;
+extern crate time;
 
+use getopts::Options;
+use std::env;
 use std::mem;
 use std::ascii::AsciiExt;
 use std::error::Error;
@@ -11,6 +15,7 @@ use std::path::Path;
 use std::str::Chars;
 use std::collections::HashMap;
 use regex::Regex;
+use time::{Duration, PreciseTime};
 
 struct Node {
     words : Vec<String>,
@@ -246,28 +251,58 @@ fn match_ignores_case() {
     assert_eq!(matches, ["Cat", "cat", "cot"]);
 }
 
-fn print_matches(words : Vec<&str>) {
+fn print_matches(words : Vec<&str>, num_runs : u32, duration : &Duration) {
     if words.is_empty() {
         println!("\t<No Results>");
     } else {
+        let len = words.len();
         let mut sorted_words : Vec<&str> = words.into_iter().collect();
         sorted_words.sort();
         for word in sorted_words {
             println!("\t{}", word);
+        }
+
+        match num_runs {
+            1 => println!("\t => {} results in {}μs",
+                          len,
+                          duration.num_microseconds().unwrap()),
+            _ => println!("\t => {} results in {}μs ({} runs)",
+                          len,
+                          duration.num_microseconds().unwrap(),
+                          num_runs)
         }
     }
 }
 
 #[allow(dead_code)]
 fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    let mut opts = Options::new();
+    opts.optopt(
+        "n",
+        "num_runs",
+        "the number of times to run the match per line",
+        "COUNT");
+    let matches = opts.parse(&args[1..]).unwrap();
+    let num_runs : u32 = match matches.opt_str("n") {
+        Some(n) => n.parse().unwrap(),
+        None => 1
+    };
+
+
     let dictionary_path = Path::new("/usr/share/dict/words");
     let words = load_dictionary(&dictionary_path);
-    let build_length_to_trie = build_length_to_trie_map(&words);
+    let length_to_trie = build_length_to_trie_map(&words);
 
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
-        let matches = match_pattern(&line.unwrap(),
-                                    &build_length_to_trie);
-        print_matches(matches);
+        let start = PreciseTime::now();
+        let word = line.unwrap();
+        for _ in 0..num_runs {
+            match_pattern(&word, &length_to_trie);
+        }
+        let matches = match_pattern(&word, &length_to_trie);
+        print_matches(matches, num_runs, &start.to(PreciseTime::now()));
     }
 }
