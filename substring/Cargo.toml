@@ -1,0 +1,4 @@
+[package]
+name = "substring"
+version = "0.1.0"
+authors = ["Brian Quinlan <brian@sweetapp.com>"]
