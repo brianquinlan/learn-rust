@@ -1,7 +1,7 @@
 //! A stack type with heap-allocated contents.
 //!
-//! MinStacks have `O(1)` push, pop and min (return the minimum value in the
-//! stack).
+//! MinStacks have amortized `O(1)` push, pop and min (return the minimum value
+//! in the stack).
 
 use std::cmp::PartialEq;
 use std::cmp::PartialOrd;
