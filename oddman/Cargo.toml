@@ -1,0 +1,4 @@
+[package]
+name = "oddman"
+version = "0.1.0"
+authors = ["Brian Quinlan <brian@sweetapp.com>"]
