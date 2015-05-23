@@ -8,7 +8,6 @@
 ///
 /// assert_eq!(Some((3, 7)), target_sum(&vec![1, 2, 3, 5, 7, 11, 13], 10));
 /// assert_eq!(None, target_sum(&vec![1, 2, 3, 5, 7, 11, 13], 11));
-
 /// ```
 pub fn target_sum(search: &Vec<i32>, target: i32) -> Option<(i32, i32)> {
     if search.len() == 0 {
