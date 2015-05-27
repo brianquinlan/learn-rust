@@ -9,15 +9,15 @@ in it's left subtree and strictly less than every node in it's right subtree.
 
 For example:
 
-      5
+        5
+       / \
+      3   7
      / \
-    3   7
-   / \
-  1   6
+    1   6
 
-is invalid the left subtree contains the value 6, which is greater than the
+is invalid because the left subtree contains the value 6, which is greater than the
 value of the root node (5).
 
-# Source:
+## Source:
 
 http://courses.csail.mit.edu/iap/interview/Hacking_a_Google_Interview_Practice_Questions_Person_B.pdf
