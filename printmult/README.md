@@ -22,4 +22,4 @@ For example:
 
 ## Source:
 
-http://imranontech.com/2007/01/24/using-fizzbuzz-to-find-developers-who-grok-coding/
+https://sites.google.com/site/steveyegge2/five-essential-phone-screen-questions
