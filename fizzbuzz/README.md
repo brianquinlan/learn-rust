@@ -2,7 +2,7 @@
 
 ## Problem
 
-Prints the numbers from 1 to 100. If the number is a evenly divisible by
+Print the numbers from 1 to 100. If the number is a evenly divisible by
 3 then print ```Fizz``` instead. If the number is evenly divisible by 5
 then print ```Buzz``` instead. If the number is evenly divisible by both
 3 and 5 then print ```FizzBuzz``` instead.
