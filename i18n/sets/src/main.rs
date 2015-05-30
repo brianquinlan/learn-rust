@@ -106,13 +106,13 @@ fn match_pattern<'a>(pattern : &str,
 
     assert!(!word_sets.is_empty());
     if word_sets.len() == 1 {
-        return word_sets.get(0).unwrap().iter().cloned().collect();
+        return word_sets[0].iter().cloned().collect();
     }
 
     word_sets.sort_by(|a, b| a.len().cmp(&b.len()));
     let mut refined_word_set : HashSet<&str> =
-        word_sets.get(0).unwrap().intersection(
-            word_sets.get(1).unwrap()).cloned().collect();
+        word_sets[0].intersection(
+            word_sets[1]).cloned().collect();
 
     for word_set in word_sets.iter().skip(2) {
         refined_word_set = refined_word_set.intersection(
