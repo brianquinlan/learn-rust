@@ -8,8 +8,8 @@
 /// assert!(!has_substring("abcdef", "xyz"));
 /// ```
 pub fn has_substring(search: &str, find: &str) -> bool {
-    // The non-brute-force algorithms would be to implement in an interview
-    // without reference so accept that this will be O(nm).
+    // The non-brute-force algorithms would be too difficult to implement in an
+    // interview without reference so accept that this will be O(nm).
     if search.is_empty() {
         return find.is_empty();
     }
