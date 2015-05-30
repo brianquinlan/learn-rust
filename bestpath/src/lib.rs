@@ -44,9 +44,7 @@ fn min_distance_heuristic(p1: Position, p2: Position) -> usize {
         false => p2.y - p1.y,
     };
 
-    // Diagonal moves are no more expensive than horizontal and verticle
-    // moves.
-    cmp::min(x_diff, y_diff)
+    x_diff + y_diff
 }
 
 #[inline]
@@ -67,7 +65,9 @@ fn neighbours(grid : &Vec<Vec<char>>, pos: Position) -> Vec<Position> {
         let max_x = cmp::min(pos.x+2, grid[y].len()) as usize;
 
         for x in min_x..max_x {
-            if (x != pos.x || y != pos.y) && grid[y][x] == ' ' {
+            if (x != pos.x || y != pos.y) &&
+               (x == pos.x || y == pos.y) &&  // Remove and diagonal allowed.
+               grid[y][x] == ' ' {
                 v.push(Position{x: x, y: y});
             }
         }
@@ -101,17 +101,18 @@ fn reconstruct(came_from : &HashMap<Position, Position>,
 /// ```
 /// use bestpath::{find_path, Position};
 ///
-/// let grid = vec![vec![' ', ' ', '*', ' '],
-///                 vec![' ', '*', ' ', '*'],
+/// let grid = vec![vec![' ', '*', '*', ' '],
+///                 vec![' ', ' ', ' ', '*'],
 ///                 vec!['*', '*', ' ', ' '],
 ///                 vec![' ', '*', ' ', ' ']];
 /// assert_eq!(Some(vec![Position{x: 0, y: 0},
-///                      Position{x: 1, y: 0},
+///                      Position{x: 0, y: 1},
+///                      Position{x: 1, y: 1},
 ///                      Position{x: 2, y: 1},
 ///                      Position{x: 2, y: 2}]),
 ///            find_path(&grid, Position{x: 0, y: 0}, Position{x: 2, y: 2}));
 /// assert_eq!(None,
-///            find_path(&grid, Position{x: 0, y: 0}, Position{x: 0, y: 3}));
+///            find_path(&grid, Position{x: 0, y: 0}, Position{x: 3, y: 0}));
 /// ```
 #[inline]
 pub fn find_path(grid : &Vec<Vec<char>>, start: Position, goal: Position) 
@@ -156,16 +157,16 @@ pub fn find_path(grid : &Vec<Vec<char>>, start: Position, goal: Position)
 /// ```
 /// use bestpath::{find_path, format_path_map, Position};
 ///
-/// let grid = vec![vec![' ', ' ', '*', ' '],
+/// let grid = vec![vec![' ', ' ', ' ', ' '],
 ///                 vec![' ', '*', ' ', '*'],
 ///                 vec!['*', '*', ' ', ' '],
 ///                 vec![' ', '*', ' ', ' ']];
 /// let path = find_path(&grid,
 ///                      Position{x: 0, y: 1},
 ///                      Position{x: 3, y: 2}).unwrap();
-/// assert_eq!(vec![vec![' ', 'o', '*', ' '],
+/// assert_eq!(vec![vec!['o', 'o', 'o', ' '],
 ///                 vec!['@', '*', 'o', '*'],
-///                 vec!['*', '*', ' ', 'X'],
+///                 vec!['*', '*', 'o', 'X'],
 ///                 vec![' ', '*', ' ', ' ']],
 ///            format_path_map(&grid, &path));
 /// ```
@@ -213,14 +214,14 @@ fn no_path() {
 #[test]
 fn multiple_complex_paths_to_goal() {
     let map =
-        vec![vec![' ', ' ', '█', ' ', ' ', ' ', ' '],
-             vec!['█', '█', ' ', '█', '█', '█', ' '],
+        vec![vec![' ', ' ', ' ', ' ', ' ', ' ', ' '],
+             vec!['█', '█', ' ', '█', '█', ' ', ' '],
              vec![' ', '█', ' ', '█', '█', ' ', '█'],
-             vec![' ', ' ', ' ', '█', ' ', '█', ' '],
-             vec![' ', ' ', ' ', '█', '█', '█', ' '],
-             vec![' ', '█', '█', '█', ' ', '█', ' '],
-             vec!['█', '█', ' ', ' ', '█', ' ', ' '],
-             vec![' ', ' ', ' ', ' ', '█', ' ', ' '],
+             vec![' ', '█', ' ', '█', ' ', ' ', ' '],
+             vec![' ', '█', ' ', '█', '█', ' ', '█'],
+             vec![' ', '█', '█', ' ', ' ', ' ', ' '],
+             vec!['█', '█', ' ', ' ', '█', '█', ' '],
+             vec![' ', ' ', ' ', ' ', '█', '█', ' '],
              vec![' ', ' ', ' ', ' ', '█', ' ', ' ']];
 
     let path = find_path(&map,
@@ -229,14 +230,14 @@ fn multiple_complex_paths_to_goal() {
     let path_map = format_path_map(&map, &path);
     print_grid(&path_map);
     assert_eq!(
-        vec![vec!['@', 'o', '█', 'o', 'o', 'o', ' '],
-             vec!['█', '█', 'o', '█', '█', '█', 'o'],
+        vec![vec!['@', 'o', 'o', 'o', 'o', 'o', ' '],
+             vec!['█', '█', ' ', '█', '█', 'o', ' '],
              vec![' ', '█', ' ', '█', '█', 'o', '█'],
-             vec![' ', ' ', ' ', '█', ' ', '█', 'o'],
-             vec![' ', ' ', ' ', '█', '█', '█', 'o'],
-             vec![' ', '█', '█', '█', ' ', '█', 'o'],
-             vec!['█', '█', ' ', ' ', '█', ' ', 'o'],
-             vec![' ', ' ', ' ', ' ', '█', ' ', 'o'],
+             vec![' ', '█', ' ', '█', ' ', 'o', ' '],
+             vec![' ', '█', ' ', '█', '█', 'o', '█'],
+             vec![' ', '█', '█', ' ', ' ', 'o', 'o'],
+             vec!['█', '█', ' ', ' ', '█', '█', 'o'],
+             vec![' ', ' ', ' ', ' ', '█', '█', 'o'],
              vec![' ', ' ', ' ', ' ', '█', ' ', 'X']],
         path_map);
 }
@@ -293,15 +294,7 @@ fn straight_diagonal_to_goal() {
                          Position { x: 6, y: 6}).unwrap();
     let path_map = format_path_map(&map, &path);
     print_grid(&path_map);
-    assert_eq!(
-        vec![vec!['@', ' ', ' ', ' ', ' ', ' ', ' '],
-             vec![' ', 'o', ' ', ' ', ' ', ' ', ' '],
-             vec![' ', ' ', 'o', ' ', ' ', ' ', ' '],
-             vec![' ', ' ', ' ', 'o', ' ', ' ', ' '],
-             vec![' ', ' ', ' ', ' ', 'o', ' ', ' '],
-             vec![' ', ' ', ' ', ' ', ' ', 'o', ' '],
-             vec![' ', ' ', ' ', ' ', ' ', ' ', 'X']],
-        path_map);
+    assert_eq!(13, path.len())  // There are many equivalent paths.
 }
 
 #[test]
@@ -321,13 +314,13 @@ fn single_walled_path_to_goal() {
     let path_map = format_path_map(&map, &path);
     print_grid(&path_map);
     assert_eq!(
-        vec![vec!['@', 'o', 'o', 'o', 'o', 'o', ' '],
+        vec![vec!['@', 'o', 'o', 'o', 'o', 'o', 'o'],
              vec!['█', '█', '█', '█', '█', '█', 'o'],
-             vec![' ', 'o', 'o', 'o', 'o', 'o', ' '],
+             vec!['o', 'o', 'o', 'o', 'o', 'o', 'o'],
              vec!['o', '█', '█', '█', '█', '█', '█'],
-             vec![' ', 'o', 'o', 'o', 'o', 'o', ' '],
+             vec!['o', 'o', 'o', 'o', 'o', 'o', 'o'],
              vec!['█', '█', '█', '█', '█', '█', 'o'],
-             vec!['X', 'o', 'o', 'o', 'o', 'o', ' ']],
+             vec!['X', 'o', 'o', 'o', 'o', 'o', 'o']],
         path_map);
 }
 
@@ -337,8 +330,8 @@ fn spiral_wall_path_to_goal() {
         vec![vec![' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
              vec![' ', '█', '█', '█', '█', '█', '█', '█'],
              vec![' ', '█', ' ', ' ', ' ', ' ', ' ', ' '],
-             vec![' ', '█', ' ', '█', '█', '█', ' ', ' '],
-             vec![' ', '█', ' ', '█', ' ', '█', '█', ' '],
+             vec![' ', '█', ' ', '█', '█', '█', '█', ' '],
+             vec![' ', '█', ' ', '█', ' ', ' ', '█', ' '],
              vec![' ', '█', ' ', '█', '█', ' ', '█', ' '],
              vec![' ', '█', ' ', ' ', ' ', ' ', '█', ' '],
              vec![' ', '█', '█', '█', '█', '█', '█', ' '],
@@ -352,12 +345,12 @@ fn spiral_wall_path_to_goal() {
     assert_eq!(
         vec![vec!['@', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
              vec!['o', '█', '█', '█', '█', '█', '█', '█'],
-             vec!['o', '█', ' ', 'o', 'o', 'o', ' ', ' '],
-             vec!['o', '█', 'o', '█', '█', '█', 'o', ' '],
-             vec!['o', '█', 'o', '█', 'X', '█', '█', 'o'],
+             vec!['o', '█', 'o', 'o', 'o', 'o', 'o', 'o'],
+             vec!['o', '█', 'o', '█', '█', '█', '█', 'o'],
+             vec!['o', '█', 'o', '█', 'X', 'o', '█', 'o'],
              vec!['o', '█', 'o', '█', '█', 'o', '█', 'o'],
-             vec!['o', '█', ' ', 'o', 'o', ' ', '█', 'o'],
+             vec!['o', '█', 'o', 'o', 'o', 'o', '█', 'o'],
              vec!['o', '█', '█', '█', '█', '█', '█', 'o'],
-             vec![' ', 'o', 'o', 'o', 'o', 'o', 'o', ' ']],
+             vec!['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o']],
         path_map);
 }
