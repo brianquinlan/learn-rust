@@ -118,7 +118,8 @@ pub fn find_path(grid: &Vec<Vec<char>>, start: Position, goal: Position)
     let mut cost_so_far = HashMap::new();
     cost_so_far.insert(start, 0);
 
-    while let Some(PositionPriority { minimum_cost, position }) = frontier.pop() {
+    while let Some(PositionPriority { minimum_cost, position }) =
+            frontier.pop() {
         if position == goal { 
             return Some(reconstruct(&came_from, start, goal));
         }
