@@ -274,6 +274,17 @@ fn horizontal_map() {
 }
 
 #[test]
+fn start_at_goal() {
+    let map =
+        vec![vec![' ', ' ', ' ', ' ']];
+
+    let path = find_path(&map,
+                         Position { x: 0, y: 0},
+                         Position { x: 0, y: 0}).unwrap();
+    assert_eq!(vec![Position{x: 0, y: 0 }], path);
+}
+
+#[test]
 fn straight_diagonal_to_goal() {
     let map =
         vec![vec![' ', ' ', ' ', ' ', ' ', ' ', ' '],
