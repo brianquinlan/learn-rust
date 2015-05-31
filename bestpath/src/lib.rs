@@ -51,26 +51,20 @@ fn min_distance_heuristic(p1: Position, p2: Position) -> usize {
 fn neighbours(grid : &Vec<Vec<char>>, pos: Position) -> Vec<Position> {
     let mut v = Vec::new();
 
-    let min_x = match pos.x {
-        0 => 0,
-        _ => pos.x - 1,
-    };
-    let min_y = match pos.y {
-        0 => 0,
-        _ => pos.y - 1,
-    };
-    let max_y = cmp::min(pos.y+2, grid.len()) as usize;
+    if pos.x > 0 && grid[pos.y][pos.x-1] == ' ' {
+        v.push(Position{x: pos.x-1, y: pos.y});
+    }
+    if pos.x + 1 < grid[pos.y].len() && grid[pos.y][pos.x+1] == ' ' {
+        v.push(Position{x: pos.x+1, y: pos.y});
+    }
 
-    for y in min_y..max_y {
-        let max_x = cmp::min(pos.x+2, grid[y].len()) as usize;
-
-        for x in min_x..max_x {
-            if (x != pos.x || y != pos.y) &&
-               (x == pos.x || y == pos.y) &&  // Remove and diagonal allowed.
-               grid[y][x] == ' ' {
-                v.push(Position{x: x, y: y});
-            }
-        }
+    if pos.y > 0 && pos.x < grid[pos.y-1].len() && grid[pos.y-1][pos.x] == ' ' {
+        v.push(Position{x: pos.x, y: pos.y-1});
+    }
+    if pos.y + 1 < grid.len() &&
+       pos.x < grid[pos.y+1].len() &&
+       grid[pos.y+1][pos.x] == ' ' {
+        v.push(Position{x: pos.x, y: pos.y+1});
     }
     v
 }
