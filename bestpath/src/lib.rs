@@ -48,7 +48,7 @@ fn min_distance_heuristic(p1: Position, p2: Position) -> usize {
 }
 
 #[inline]
-fn neighbours(grid : &Vec<Vec<char>>, pos: Position) -> Vec<Position> {
+fn neighbours(grid: &Vec<Vec<char>>, pos: Position) -> Vec<Position> {
     let mut v = Vec::new();
 
     if pos.x > 0 && grid[pos.y][pos.x-1] == ' ' {
@@ -72,7 +72,7 @@ fn neighbours(grid : &Vec<Vec<char>>, pos: Position) -> Vec<Position> {
 /// Generate the optimal path from start to goal given a mapping from positions
 /// to the position that lead to that position.
 #[inline]
-fn reconstruct(came_from : &HashMap<Position, Position>,
+fn reconstruct(came_from: &HashMap<Position, Position>,
                start: Position,
                goal: Position) -> Vec<Position> {
     let mut current = goal;
@@ -109,7 +109,7 @@ fn reconstruct(came_from : &HashMap<Position, Position>,
 ///            find_path(&grid, Position{x: 0, y: 0}, Position{x: 3, y: 0}));
 /// ```
 #[inline]
-pub fn find_path(grid : &Vec<Vec<char>>, start: Position, goal: Position) 
+pub fn find_path(grid: &Vec<Vec<char>>, start: Position, goal: Position) 
         -> Option<Vec<Position>>  {
     let mut frontier = BinaryHeap::new();
     frontier.push(PositionPriority { minimum_cost: 0, position: start });
@@ -165,7 +165,7 @@ pub fn find_path(grid : &Vec<Vec<char>>, start: Position, goal: Position)
 ///            format_path_map(&grid, &path));
 /// ```
 #[inline]
-pub fn format_path_map(grid : &Vec<Vec<char>>, path: &Vec<Position>)
+pub fn format_path_map(grid: &Vec<Vec<char>>, path: &Vec<Position>)
         -> Vec<Vec<char>> {
     let mut m = grid.clone();
     let last_path = path.len() - 1;
@@ -180,7 +180,7 @@ pub fn format_path_map(grid : &Vec<Vec<char>>, path: &Vec<Position>)
 }
 
 #[allow(dead_code)]
-fn print_grid(grid : &Vec<Vec<char>>) {
+fn print_grid(grid: &Vec<Vec<char>>) {
     println!("");
     for row in grid {
         for ch in row {
