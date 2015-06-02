@@ -4,9 +4,9 @@
 
 Determine if a
 [binary search tree](http://en.wikipedia.org/wiki/Binary_search_tree)
-of distinct integers is valid. A binary search tree is valid if every node
-is strictly greater than every node in it's left subtree and strictly less
-than every node in it's right subtree.
+of distinct integers is valid. Such a binary search tree is valid if every
+node is strictly greater than every node in it's left subtree and strictly
+less than every node in it's right subtree.
 
 For example:
 
