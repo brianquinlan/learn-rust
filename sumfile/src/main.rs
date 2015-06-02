@@ -2,6 +2,8 @@ use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 
+/// Return the sum of all the integers found in the file at `path`. Each integer
+/// must be on its own line.
 fn sum_file(path: &str) -> i64 {
     let mut sum : i64 = 0;
     let file = match File::open(path) {
