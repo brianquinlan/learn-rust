@@ -9,7 +9,7 @@ For some reason hash tables may not be used in the solution.
 
 For example:
 
-    1, -7, 5, -7 -3, 5, 1 => 3
+    1, -7, 5, -7 -3, 5, 1 => -3
 
 ## Source:
 
