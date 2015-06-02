@@ -13,6 +13,7 @@ use std::path::Path;
 use regex::Regex;
 use time::{Duration, PreciseTime};
 
+/// Load a dictionary containing one word per line (e.g. from /usr/share/dict/).
 fn load_dictionary(dictionary_path: &Path) -> Vec<String> {
     let display = dictionary_path.display();
 
@@ -38,11 +39,33 @@ fn load_dictionary(dictionary_path: &Path) -> Vec<String> {
     return words;
 }
 
+/// Match a pattern against a given list of words and return the subset that
+/// match. The pattern must consist of ASCII letters or digits. Letters will be
+/// matched exactly (ignoring case) while digits will be composed into numbers
+/// (e.g. "18" will be treated as eighteen) and that many characters will be
+/// skipped. So "i18n" would be equivalent to the regex pattern "^i.{18}n$".
+///
+/// # Examples
+///
+/// ```
+/// let words = vec![
+///            "cat",
+///            "integer"
+///            "compartmentalization".to_string(),
+///            "intercrystallization".to_string(),
+///            "internationalization".to_string(),
+///            "pseudopseudohypoparathyroidism".to_string()];
+/// let mut matches = match_pattern("i18n", &words);
+/// matches.sort();
+/// assert_eq!(matches, ["intercrystallization", "internationalization"]);
+/// ```
+#[inline]
 fn match_pattern<'a>(pattern : &str, words : &'a Vec<String>)
         -> Vec<&'a str> {
     let pattern_parser = Regex::new(
         r"(?P<number>\d+)|(?P<letter>[A-Za-z])").unwrap();
 
+    // Convert the input pattern into a regular expression.
     let mut regex_string = "(?i)^".to_string();
     for number_or_letter in pattern_parser.captures_iter(&pattern) {
         if number_or_letter.name("number").is_some() {
@@ -61,6 +84,7 @@ fn match_pattern<'a>(pattern : &str, words : &'a Vec<String>)
     let pattern_matcher = Regex::new(&regex_string).unwrap();
     let mut matching_words : Vec<&str> = Vec::new();
 
+    // Try to match the constructed regular expression against every word.
     for word in words {
         if pattern_matcher.is_match(word) {
            matching_words.push(word) 

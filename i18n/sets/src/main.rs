@@ -16,6 +16,7 @@ use std::collections::HashSet;
 use regex::Regex;
 use time::{Duration, PreciseTime};
 
+/// Load a dictionary containing one word per line (e.g. from /usr/share/dict/).
 fn load_dictionary(dictionary_path: &Path) -> Vec<String> {
     let display = dictionary_path.display();
 
@@ -41,6 +42,18 @@ fn load_dictionary(dictionary_path: &Path) -> Vec<String> {
     return words;
 }
 
+/// Build the data structures needed for the matching algorithm given a list of
+/// words.
+///
+/// The first hashmap maps (character, index, word length) to a list of words.
+/// For example:
+///   ('c', 1, 3) => ["can, "cat", "con", etc.]
+///   ('t', 3, 3) => ["art, "cat", "mat", etc.]
+///
+/// The second hashmap maps word length to a list of words of that length.
+/// For example:
+///   1 => ["a", "I", etc.]
+///   3 => ["art", "can", con", "mat", etc.]
 fn build_maps(words: &Vec<String>) -> (
         HashMap<(char, usize, usize), HashSet<&str>>,
         HashMap<usize, Vec<&str>>) {
@@ -61,6 +74,15 @@ fn build_maps(words: &Vec<String>) -> (
     (ch_position_length_map, length_map)
 }
 
+/// Match a pattern against a dictionary and return the subset of words that
+/// match. The pattern must consist of ASCII letters or digits. Letters will be
+/// matched exactly (ignoring case) while digits will be composed into numbers
+/// (e.g. "18" will be treated as eighteen) and that many characters will be
+/// skipped. So "i18n" would be equivalent to the regex pattern "^i.{18}n$".
+///
+/// The dictionary is presented as two HashMaps (see `build_maps`). The first
+/// maps (character, index, word length) to a list of words. The second maps
+/// word length to a list of words.
 fn match_pattern<'a>(pattern : &str,
          ch_position_length_map : &HashMap<(char, usize, usize), HashSet<&'a str>>,
          length_map : &HashMap<usize, Vec<&'a str>>) -> Vec<&'a str> {
@@ -68,7 +90,7 @@ fn match_pattern<'a>(pattern : &str,
         r"(?P<number>\d+)|(?P<letter>[A-Za-z])").unwrap();
 
     let mut pattern_length: usize = 0;
-    let mut ch_and_index = Vec::new();
+    let mut ch_and_index = Vec::new();  // Known characters and their index.
 
     for number_or_letter in pattern_parser.captures_iter(
             &pattern.to_ascii_lowercase()) {
@@ -85,6 +107,8 @@ fn match_pattern<'a>(pattern : &str,
     }
 
     if ch_and_index.is_empty() {
+        // No characters were given so return all the words of the specified
+        // length. This handles the case where the pattern is purely digits.
         return match length_map.get(&pattern_length) {
             // The division was valid
             Some(word_list) => word_list.clone(),
@@ -93,22 +117,27 @@ fn match_pattern<'a>(pattern : &str,
         }
     }
 
+    // Use "ch_and_index" to find all of the word sets that apply to the
+    // pattern.
     let mut word_sets : Vec<&HashSet<&str>> = Vec::new();
     for &(ch, index) in ch_and_index.iter() {
         let key = (ch, index as usize, pattern_length as usize);
         match ch_position_length_map.get(&key) {
             // The division was valid
             Some(word_set) => word_sets.push(word_set),
-            // There are no words of pattern_length that ch at index.
+            // There are no words of pattern_length with ch at index.
             None => return Vec::new()
         }
     }
 
-    assert!(!word_sets.is_empty());
+    assert!(!word_sets.is_empty());  // Should have exited already in this case.
     if word_sets.len() == 1 {
+        // Handles the case of a single letter specified e.g. "c2".
         return word_sets[0].iter().cloned().collect();
     }
 
+    // Intersect the word sets from smallest set to largest set to minimize
+    // intersection time.
     word_sets.sort_by(|a, b| a.len().cmp(&b.len()));
     let mut refined_word_set : HashSet<&str> =
         word_sets[0].intersection(

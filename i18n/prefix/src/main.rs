@@ -17,16 +17,15 @@ use std::collections::HashMap;
 use regex::Regex;
 use time::{Duration, PreciseTime};
 
+/// A node in a prefix-tree (aka trie).
+// TODO(brian@sweetapp.com): Since each trie only stores words of the same
+// length, this struct is unnecessarily general.
 struct Node {
     words : Vec<String>,
     children: HashMap<char, Node>
 }
 
-enum Token {
-    Character(char),
-    Any
-}
-
+/// Load a dictionary containing one word per line (e.g. from /usr/share/dict/).
 fn load_dictionary(dictionary_path: &Path) -> Vec<String> {
     let display = dictionary_path.display();
 
@@ -52,42 +51,54 @@ fn load_dictionary(dictionary_path: &Path) -> Vec<String> {
     return words;
 }
 
-fn insert_internal(word : &str, remaining: &mut Chars, node: &mut Node) {
+fn insert_in_trie_internal(word : &str,
+                           remaining: &mut Chars,
+                           node: &mut Node) {
     match remaining.next() {
         Some(ch) => {
             if let Some(next_node) = node.children.get_mut(&ch) {
-                insert_internal(word, remaining, next_node);
+                insert_in_trie_internal(word, remaining, next_node);
                 return;
             }
-            let mut next_node = Node {words: Vec::new(), children: HashMap::new()};
-            insert_internal(word, remaining, &mut next_node);
+            let mut next_node = Node{words: Vec::new(),
+                                     children: HashMap::new()};
+            insert_in_trie_internal(word, remaining, &mut next_node);
             node.children.insert(ch, next_node);
         }
         None => node.words.push(word.to_string())
     }
 }
 
-fn insert(word : &str, node: &mut Node) {
-    insert_internal(word, &mut word.to_ascii_lowercase().chars(), node);
+fn insert_in_trie(word : &str, node: &mut Node) {
+    insert_in_trie_internal(word, &mut word.to_ascii_lowercase().chars(), node);
 }
 
+/// Map each word length to a set of tries containing only words of that length.
 fn build_length_to_trie_map(words: &Vec<String>) -> HashMap<usize, Node> {
     let mut length_to_trie = HashMap::new();
 
     for word in words.iter() {
         let mut trie = length_to_trie.entry(word.len()).or_insert_with(
             || Node {words: Vec::new(), children: HashMap::new()});
-        insert(word, &mut trie);
+        insert_in_trie(word, &mut trie);
     }
     length_to_trie
 }
 
 fn match_pattern<'a>(pattern : &str,
          build_length_to_trie_map : &'a HashMap<usize, Node>) -> Vec<&'a str> {
-
     let pattern_parser = Regex::new(
         r"(?P<number>\d+)|(?P<letter>[A-Za-z])").unwrap();
 
+    // To make it easier to traverse the trie, convert the input pattern into a
+    // list of tokens. For example, "c2t" => vec![Token::Character('c'),
+    //                                            Token::Any,
+    //                                            Token::Any,
+    //                                            Token::Character('t')]
+    enum Token {
+        Character(char),
+        Any
+    }
     let mut tokens = Vec::new();
     let mut pattern_length: usize = 0;
 
@@ -114,11 +125,15 @@ fn match_pattern<'a>(pattern : &str,
     };
 
     let mut nodes : Vec<&Node> = vec![trie];
+    // The trie nodes in the next level in the trie. "nodes" and "next_nodes"
+    // are swapped at the end of the token processing loop.
     let mut next_nodes : Vec<&Node> = Vec::new();
 
     for token in tokens.iter() {
         match *token {
             Token::Any => {
+                // If the token represents any character then push all the
+                // children of each node in "nodes" onto "next_nodes".
                 while let Some(node) = nodes.pop() {
                     for next_node in node.children.values() {
                         next_nodes.push(next_node);
@@ -126,6 +141,8 @@ fn match_pattern<'a>(pattern : &str,
                 }
             }
             Token::Character(ch) => {
+                // If the token represents a single character then push only the
+                // "ch" children of each node in "nodes" onto "next_nodes".
                 while let Some(node) = nodes.pop() {
                     if let Some(next_node) = node.children.get(&ch) {
                         next_nodes.push(next_node);
@@ -140,6 +157,7 @@ fn match_pattern<'a>(pattern : &str,
         mem::swap(&mut nodes, &mut next_nodes);
     }
 
+    // "nodes" now contains leaf nodes. Extract the words from them.
     let mut words : Vec<&str> = Vec::new();
     for node in nodes.iter() {
         for word in node.words.iter() {
