@@ -44,9 +44,10 @@ fn min_distance_heuristic(p1: Position, p2: Position) -> usize {
         false => p2.y - p1.y,
     };
 
-    x_diff + y_diff
+    x_diff + y_diff  // Since diagonal moves aren't allowed.
 }
 
+/// Return the navigable neighbouring cells to the given one.
 #[inline]
 fn neighbours(grid: &Vec<Vec<char>>, pos: Position) -> Vec<Position> {
     let mut v = Vec::new();
