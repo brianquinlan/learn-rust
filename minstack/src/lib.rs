@@ -8,6 +8,11 @@ use std::cmp::PartialOrd;
 
 pub struct MinStack<T> {
     stack: Vec<T>,
+    // Maintain a parallel stack of minimum values.
+    // Whenever a value is pushed to `stack`, also push it to `min_stack` if
+    // the value is <= the value at the top of `min_stack`.
+    // Whenever a value is popped from `stack`, also pop `min_stack` if the 
+    // value == the value at the top of `min_stack`.
     min_stack: Vec<T>
 }
 
@@ -55,8 +60,8 @@ impl<T : Copy + PartialEq + PartialOrd> MinStack<T> {
     }
 
     #[inline]
-    fn should_pop_min(&self, value: &Option<T>) -> bool {
-        match *value {
+    fn should_pop_min(&self, popped_value: &Option<T>) -> bool {
+        match *popped_value {
             Some(v) => match self.min_stack.last() {
                 Some(min) => *min == v,
                 None => false
