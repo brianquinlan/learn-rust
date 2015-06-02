@@ -1,4 +1,5 @@
 /// Returns true if the find string can be found in the search string.
+///
 /// # Examples
 ///
 /// ```
@@ -8,8 +9,8 @@
 /// assert!(!has_substring("abcdef", "xyz"));
 /// ```
 pub fn has_substring(search: &str, find: &str) -> bool {
-    // The non-brute-force algorithms would be too difficult to implement in an
-    // interview without reference so accept that this will be O(nm).
+    // Any non-brute-force algorithm would be too difficult to implement in an
+    // interview without reference so implement the naive O(nm) solution.
     if search.is_empty() {
         return find.is_empty();
     }
