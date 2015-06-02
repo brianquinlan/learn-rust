@@ -1,4 +1,4 @@
-/// Return two numbers found in a `Vec` that can be added up to a target, or
+/// Return any two numbers found in a `Vec` that can be added up to a target, or
 // `None` if no such numbers exist.
 ///
 /// # Examples
