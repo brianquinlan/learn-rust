@@ -77,7 +77,7 @@ fn insert_in_trie(word : &str, node: &mut Node) {
 fn build_length_to_trie_map(words: &Vec<String>) -> HashMap<usize, Node> {
     let mut length_to_trie = HashMap::new();
 
-    for word in words.iter() {
+    for word in words {
         let mut trie = length_to_trie.entry(word.len()).or_insert_with(
             || Node {words: Vec::new(), children: HashMap::new()});
         insert_in_trie(word, &mut trie);
@@ -159,7 +159,7 @@ fn match_pattern<'a>(pattern : &str,
 
     // "nodes" now contains leaf nodes. Extract the words from them.
     let mut words : Vec<&str> = Vec::new();
-    for node in nodes.iter() {
+    for node in nodes {
         for word in node.words.iter() {
             words.push(&word);
         }
