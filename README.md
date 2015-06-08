@@ -9,7 +9,8 @@ coding questions that I found on the internet. In particular,
 contains a lot of interesting questions.
 
 Since this was a learning project, some of the code might not be
-idiomatic (or even sane). Corrections are welcome.
+idiomatic (or even sane). Corrections are welcome and can be
+sent in the form of pull requests or an email to brian@sweetapp.com.
 
 ## Understandability
 
