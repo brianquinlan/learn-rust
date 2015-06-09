@@ -39,9 +39,13 @@ pub fn pancake_sort<T>(v: &mut Vec<T>) where T: PartialOrd {
     let mut index = v.len() - 1;
 
     while index > 0 {
+        // Only consider items in the range [0..index], which have yet to be
+        // sorted.
         let max_index = index_of_max(&v, index);
         if max_index != index {
+            // Move the largest item to the 0th position.
             reverse_until_index(&mut *v, max_index);
+            // Reverse the Vec so the 0th item is now at `index`. 
             reverse_until_index(&mut *v, index);
         }
         index -= 1;
