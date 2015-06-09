@@ -3,7 +3,6 @@
 use std::collections::BinaryHeap;
 use std::collections::HashMap;
 use std::cmp::Ordering;
-use std::cmp;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct Position {
@@ -181,7 +180,7 @@ pub fn format_path_map(grid: &Vec<Vec<char>>, path: &Vec<Position>)
     m
 }
 
-#[allow(dead_code)]
+#[cfg(test)]
 fn print_grid(grid: &Vec<Vec<char>>) {
     println!("");
     for row in grid {
