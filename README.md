@@ -29,6 +29,8 @@ would order each problem in order of increasing difficultly.
   Sum the contents of a text file.
 * [targetsum](https://github.com/brianquinlan/learn-rust/tree/master/targetsum) -
   Find pairs in a list that sum to a value.
+* [pancake](https://github.com/brianquinlan/learn-rust/tree/master/pancake) -
+  Sort a list using a function that reverse the list between [0..n].
 * [validbtree](https://github.com/brianquinlan/learn-rust/tree/master/validbtree) -
   Determine if a binary tree is valid.
 * [reversewords](https://github.com/brianquinlan/learn-rust/tree/master/reversewords) -
