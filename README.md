@@ -14,8 +14,9 @@ sent in the form of pull requests or an email to brian@sweetapp.com.
 
 ## Understandability
 
-Assuming that you know another programming language, here is how I
-would order each problem in order of increasing difficultly.
+Assuming that you are a programmer unfamiliar with Rust, here is my
+arrangement of problems in order of increasing difficult to understand
+algorithms and Rust idioms.
 
 * [printmult](https://github.com/brianquinlan/learn-rust/tree/master/printmult) -
   Print the 12x12 multiplication table.
