@@ -5,6 +5,8 @@
 Increment a number represented as a linked list. Each node contains a single digit
 and the most significant digit is stored in the head of the list.
 
+Do *not* reverse the linked-list before performing the increment.
+
 For example:
 
     [ 1 ] --> [ 2 ] --> [ 3 ]   =>   [ 1 ] --> [ 2 ] --> [ 4 ]
