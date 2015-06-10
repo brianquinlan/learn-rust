@@ -1,5 +1,4 @@
 use std::fs::File;
-use std::io::BufRead;
 use std::io::BufReader;
 
 /// Return the sum of all the integers found in the file at `path`. Each integer
