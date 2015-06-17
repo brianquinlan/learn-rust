@@ -3,20 +3,17 @@
 //! MinStacks have amortized `O(1)` push, pop and min (return the minimum value
 //! in the stack).
 
-use std::cmp::PartialEq;
-use std::cmp::PartialOrd;
-
 pub struct MinStack<T> {
     stack: Vec<T>,
-    // Maintain a parallel stack of minimum values.
-    // Whenever a value is pushed to `stack`, also push it to `min_stack` if
+    // Maintain a parallel stack of locations of minimum values.
+    // Whenever a value is pushed to `stack`, also push its location to `min_stack` if
     // the value is <= the value at the top of `min_stack`.
     // Whenever a value is popped from `stack`, also pop `min_stack` if the 
-    // value == the value at the top of `min_stack`.
-    min_stack: Vec<T>
+    // position == the value at the top of `min_stack`.
+    min_stack: Vec<usize>
 }
 
-impl<T : Copy + PartialEq + PartialOrd> MinStack<T> {
+impl<T : Ord> MinStack<T> {
     /// Constructs a new, empty `MinStack<T>`.
     ///
     /// # Examples
@@ -51,23 +48,17 @@ impl<T : Copy + PartialEq + PartialOrd> MinStack<T> {
     /// ```
     #[inline]
     pub fn push(&mut self, value: T) {
-        self.stack.push(value);
+        let idx = self.stack.len();
+
         match self.min_stack.last() {
-            Some(min) if *min < value => { return; },
+            Some(&min) if value <= self.stack[min] =>
+                self.min_stack.push(idx),
+            None =>
+                self.min_stack.push(idx),
             _ => { }
         }
-        self.min_stack.push(value);
-    }
 
-    #[inline]
-    fn should_pop_min(&self, popped_value: &Option<T>) -> bool {
-        match *popped_value {
-            Some(v) => match self.min_stack.last() {
-                Some(min) => *min == v,
-                None => false
-            },
-            None => false
-        }
+        self.stack.push(value);
     }
 
     /// Removes the last element from the stack and returns it, or `None` if it
@@ -87,9 +78,13 @@ impl<T : Copy + PartialEq + PartialOrd> MinStack<T> {
     pub fn pop(&mut self) -> Option<T> {
         let value = self.stack.pop();
 
-        if self.should_pop_min(&value) {
-            self.min_stack.pop();
+        match self.min_stack.last() {
+            Some(&min) if min == self.stack.len() => {
+                self.min_stack.pop();
+            }
+            _ => { }
         }
+
         value
     }
 
@@ -108,9 +103,8 @@ impl<T : Copy + PartialEq + PartialOrd> MinStack<T> {
     /// assert_eq!(Some(&1), stack.min());
     /// ```
     #[inline]
-    #[inline]
     pub fn min(&self) -> Option<&T> {
-        return self.min_stack.last();
+        self.min_stack.last().map(|&n| &self.stack[n])
     }
 }
 
