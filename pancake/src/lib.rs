@@ -1,8 +1,7 @@
 /// Reverse the items in the list from [0..index].
 #[inline]
 fn reverse_until_index<T>(v: &mut [T], index: usize) {
-    let (mut first, _) = v.split_at_mut(index+1);
-    first.reverse();
+    v[..index+1].reverse();
 }
 
 /// Return the index of the largest item in the Vec between [0..index].

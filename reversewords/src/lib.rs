@@ -6,13 +6,7 @@ const SPACE: u8 = 0x20;
 /// inclusively.
 #[inline]
 fn reverse_vec(v: &mut [u8], from: usize, to: usize) {
-    let mut left = from;
-    let mut right = to;
-    while left < right {
-        v.swap(left, right);
-        left += 1;
-        right -= 1;
-    }
+    v[from..to].reverse();
 }
 
 /// Reverse the words in the input string. Words are defined as any characters
@@ -44,7 +38,7 @@ pub fn ascii_reverse_words(s: &mut String) {
         let ref mut bytes = s.as_mut_vec();  // Unsafe.
         // Reverse the entire string. So:
         // "Hello from Rust!" => "!tsuR morf olleH"
-        reverse_vec(bytes, 0, len-1);
+        reverse_vec(bytes, 0, len);
 
         // Find each "word" (non-space) in `bytes` and reverse it. So
         // "!tsuR" => "Rust1".
@@ -57,7 +51,7 @@ pub fn ascii_reverse_words(s: &mut String) {
                 while right < len && bytes[right] != SPACE {
                     right += 1;
                 }
-                reverse_vec(bytes, left, right - 1);
+                reverse_vec(bytes, left, right);
                 left = right;
             }
         }
