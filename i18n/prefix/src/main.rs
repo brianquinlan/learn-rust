@@ -74,7 +74,7 @@ fn insert_in_trie(word : &str, node: &mut Node) {
 }
 
 /// Map each word length to a set of tries containing only words of that length.
-fn build_length_to_trie_map(words: &Vec<String>) -> HashMap<usize, Node> {
+fn build_length_to_trie_map(words: &[String]) -> HashMap<usize, Node> {
     let mut length_to_trie = HashMap::new();
 
     for word in words {

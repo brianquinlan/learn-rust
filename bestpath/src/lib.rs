@@ -48,7 +48,7 @@ fn min_distance_heuristic(p1: Position, p2: Position) -> usize {
 
 /// Return the navigable neighbouring cells to the given one.
 #[inline]
-fn neighbours(grid: &Vec<Vec<char>>, pos: Position) -> Vec<Position> {
+fn neighbours(grid: &[Vec<char>], pos: Position) -> Vec<Position> {
     let mut v = Vec::new();
 
     if pos.x > 0 && grid[pos.y][pos.x-1] == ' ' {
@@ -109,7 +109,7 @@ fn reconstruct(came_from: &HashMap<Position, Position>,
 ///            find_path(&grid, Position{x: 0, y: 0}, Position{x: 3, y: 0}));
 /// ```
 #[inline]
-pub fn find_path(grid: &Vec<Vec<char>>, start: Position, goal: Position) 
+pub fn find_path(grid: &[Vec<char>], start: Position, goal: Position)
         -> Option<Vec<Position>>  {
     let mut frontier = BinaryHeap::new();
     frontier.push(PositionPriority { minimum_cost: 0, position: start });
@@ -166,9 +166,9 @@ pub fn find_path(grid: &Vec<Vec<char>>, start: Position, goal: Position)
 ///            format_path_map(&grid, &path));
 /// ```
 #[inline]
-pub fn format_path_map(grid: &Vec<Vec<char>>, path: &Vec<Position>)
+pub fn format_path_map(grid: &[Vec<char>], path: &[Position])
         -> Vec<Vec<char>> {
-    let mut m = grid.clone();
+    let mut m = grid.to_vec();
     let last_path = path.len() - 1;
     for (i, p) in path.iter().enumerate() {
         m[p.y][p.x] = match i {
@@ -181,7 +181,7 @@ pub fn format_path_map(grid: &Vec<Vec<char>>, path: &Vec<Position>)
 }
 
 #[cfg(test)]
-fn print_grid(grid: &Vec<Vec<char>>) {
+fn print_grid(grid: &[Vec<char>]) {
     println!("");
     for row in grid {
         for ch in row {

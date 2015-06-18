@@ -5,7 +5,7 @@ const SPACE: u8 = 0x20;
 /// Reverse the contents of the input vector between `from` and `to`
 /// inclusively.
 #[inline]
-fn reverse_vec(v: &mut Vec<u8>, from: usize, to: usize) {
+fn reverse_vec(v: &mut [u8], from: usize, to: usize) {
     let mut left = from;
     let mut right = to;
     while left < right {

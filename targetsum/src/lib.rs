@@ -9,13 +9,13 @@
 /// assert_eq!(Some((3, 7)), target_sum(&vec![1, 2, 3, 5, 7, 11, 13], 10));
 /// assert_eq!(None, target_sum(&vec![1, 2, 3, 5, 7, 11, 13], 11));
 /// ```
-pub fn target_sum(search: &Vec<i32>, target: i32) -> Option<(i32, i32)> {
+pub fn target_sum(search: &[i32], target: i32) -> Option<(i32, i32)> {
     if search.len() == 0 {
         return None;
     }
     // For some reason hash tables are not allowed so sort the vector and
     // search from the ends.
-    let mut sorted_search = search.clone();
+    let mut sorted_search = search.to_vec();
     sorted_search.sort();
     let mut lowest_index = 0;
     let mut highest_index = sorted_search.len() - 1;
