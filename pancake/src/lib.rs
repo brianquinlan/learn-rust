@@ -1,13 +1,13 @@
 /// Reverse the items in the list from [0..index].
 #[inline]
-fn reverse_until_index<T>(v: &mut Vec<T>, index: usize) {
+fn reverse_until_index<T>(v: &mut [T], index: usize) {
     let (mut first, _) = v.split_at_mut(index+1);
     first.reverse();
 }
 
 /// Return the index of the largest item in the Vec between [0..index].
 #[inline]
-fn index_of_max<T>(v: &Vec<T>, index: usize) -> usize where T: PartialOrd {
+fn index_of_max<T>(v: &[T], index: usize) -> usize where T: PartialOrd {
     let mut max = &v[0];
     let mut max_index = 0;
     for i in 0..(index+1) {
@@ -32,7 +32,7 @@ fn index_of_max<T>(v: &Vec<T>, index: usize) -> usize where T: PartialOrd {
 /// assert_eq!(vec![1, 1, 2, 3, 4, 5, 7, 8, 9], v);
 /// ```
 #[inline]
-pub fn pancake_sort<T>(v: &mut Vec<T>) where T: PartialOrd {
+pub fn pancake_sort<T>(v: &mut [T]) where T: PartialOrd {
     if v.len() == 0 {
         return;
     }

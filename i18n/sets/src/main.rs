@@ -54,7 +54,7 @@ fn load_dictionary(dictionary_path: &Path) -> Vec<String> {
 /// For example:
 ///   1 => ["a", "I", etc.]
 ///   3 => ["art", "can", con", "mat", etc.]
-fn build_maps(words: &Vec<String>) -> (
+fn build_maps(words: &[String]) -> (
         HashMap<(char, usize, usize), HashSet<&str>>,
         HashMap<usize, Vec<&str>>) {
     let mut ch_position_length_map :
