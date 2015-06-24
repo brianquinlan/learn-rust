@@ -1,6 +1,6 @@
 use std::ascii::AsciiExt;
 
-const SPACE: u8 = 0x20;
+const SPACE: u8 = b' ';
 
 /// Reverse the words in the input string. Words are defined as any characters
 /// other than a space. Only ASCII input is acceptable.
