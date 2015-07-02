@@ -1,19 +1,6 @@
 use std::ascii::AsciiExt;
 
-const SPACE: u8 = 0x20;
-
-/// Reverse the contents of the input vector between `from` and `to`
-/// inclusively.
-#[inline]
-fn reverse_vec(v: &mut [u8], from: usize, to: usize) {
-    let mut left = from;
-    let mut right = to;
-    while left < right {
-        v.swap(left, right);
-        left += 1;
-        right -= 1;
-    }
-}
+const SPACE: u8 = b' ';
 
 /// Reverse the words in the input string. Words are defined as any characters
 /// other than a space. Only ASCII input is acceptable.
@@ -44,7 +31,7 @@ pub fn ascii_reverse_words(s: &mut String) {
         let ref mut bytes = s.as_mut_vec();  // Unsafe.
         // Reverse the entire string. So:
         // "Hello from Rust!" => "!tsuR morf olleH"
-        reverse_vec(bytes, 0, len-1);
+        bytes.reverse();
 
         // Find each "word" (non-space) in `bytes` and reverse it. So
         // "!tsuR" => "Rust1".
@@ -57,7 +44,7 @@ pub fn ascii_reverse_words(s: &mut String) {
                 while right < len && bytes[right] != SPACE {
                     right += 1;
                 }
-                reverse_vec(bytes, left, right - 1);
+                bytes[left..right].reverse();
                 left = right;
             }
         }
